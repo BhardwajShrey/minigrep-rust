@@ -9,7 +9,7 @@ fn main() {
     // first arg in vector will always be the name of the binary
     let config = Config::build(&cmd_args).unwrap_or_else(
         |err| {
-            println!("Error parsing arguments: {}", err);
+            eprintln!("Error parsing arguments: {}", err);
             process::exit(1);
         }
     );
@@ -17,7 +17,7 @@ fn main() {
     println!("Searching for '{}' in file {}...", config.query, config.filepath);
 
     if let Err(e) = minigrep::run(config) {
-        println!("Application error encountered: {}", e);
+        eprintln!("Application error encountered: {}", e);
         process::exit(1);
     }
 }
