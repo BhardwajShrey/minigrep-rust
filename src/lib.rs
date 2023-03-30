@@ -9,11 +9,19 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(cmd_args: &Vec<String>) -> Result<Self, &'static str> {
-        if cmd_args.len() < 3 {
-            return Err("Not enough arguments provided...");
-        }
-        let (query, filepath) = (cmd_args[1].to_string(), cmd_args[2].to_string());
+    pub fn build(mut cmd_args: impl Iterator<Item = String>) -> Result<Self, &'static str> {
+        cmd_args.next();
+
+        let query = match cmd_args.next() {
+            Some(arg) => arg,
+            None => return Err("Query string unable to be processed...")
+        };
+
+        let filepath = match cmd_args.next() {
+            Some(arg) => arg,
+            None => return Err("Filepath unable to be processed...")
+        };
+
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
         Ok(Self {query, filepath, ignore_case})
@@ -38,15 +46,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);        
-        }
-    }
-    
-    results
+    contents.lines().filter(|line| line.contains(query)).collect()
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
